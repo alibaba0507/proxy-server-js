@@ -12,7 +12,7 @@ function doRun()
        console.log("!!!!! BEFORE NEW doRUN() .... Cycle !!!!");
         doRun();
     },(done)=>{
-        
+         console.log("!!!!! ERROR doRUN() [" + done + "]>>>");
     });
     
     
@@ -25,6 +25,7 @@ async function collectProxies()
       const pythonProcess = spawn('python', ['./ProxyBroker/examples/basic_original.py']);
       console.log(" >>> start collectProxies After spawn ... >>>");
      return new Promise(function(resolve, reject) {
+         try{
             pythonProcess.stdout.on('data', (data) => {
                 console.log(data.toString());
                 
@@ -64,7 +65,11 @@ async function collectProxies()
                     //const results = await Promise.all([ret]);
                 }else
                     resolve(data);
-            })
+            });
+         }catch (err)
+         {
+              reject(err);
+         }
      });
     }catch(err)
     {
