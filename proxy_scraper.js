@@ -19,9 +19,11 @@ function doRun()
 }
 
 async function collectProxies()
-{   try{
+{   
+    try{
       console.log(" >>> start collectProxies >>>");
       const pythonProcess = spawn('python', ['./ProxyBroker/examples/basic_original.py']);
+      console.log(" >>> start collectProxies After spawn ... >>>");
      return new Promise(function(resolve, reject) {
             pythonProcess.stdout.on('data', (data) => {
                 console.log(data.toString());
