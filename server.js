@@ -42,7 +42,18 @@ app.get( '/',async (req, res, next) => {
      // console.log(JSON.stringify(sheetResult));
      res.send(JSON.stringify(sheetResult)); 
       next();
-    }else
+    }else if (req.query.err)
+    {
+         let rowId = await sheets.findRow('Sheet1!A1:A',req.query.err.toString());
+         if (rowId > 0)
+         {
+            await sheets.updateCell('Sheet1!H' + rowId,"1");  
+            res.send('<b> Proxy [' + req.query.err + '] has been flaged as error and wont be serving' );
+         }else
+          res.send('<b> Can not update proies table');
+      next();
+    }
+    else
         res.send(JSON.stringify([]));
 });
 

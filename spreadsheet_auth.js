@@ -88,7 +88,7 @@ function listMajors(auth) {
   });
 }
 
-function updateCell(cell,value)
+module.exports.updateCell = async(cell,value)=>
 {
     return new  Promise(function(resolve, reject) {
         fs.readFile('credentials.json', (err, content) => {
@@ -249,7 +249,7 @@ module.exports.get = async (minProxyRequest = 5)=>
              let sheets = google.sheets({version: 'v4', auth});
               sheets.spreadsheets.values.get({
                  spreadsheetId: sheetId,
-                 range: 'Sheet1!A1:G',
+                 range: 'Sheet1!A1:H',
                 }, (err, res) => {
                     if (err) 
                     {
@@ -261,9 +261,10 @@ module.exports.get = async (minProxyRequest = 5)=>
                     var cnt = 0;
                     for (let i =0;i<rows.length;i++) {
                       let row = rows[i];
-                      if (typeof row[6] === 'undefined'
+                      if ((typeof row[7] === 'undefined' || row[7] !== '1')
+                           && (typeof row[6] === 'undefined'
                             || row[6] == "" ||
-                                Math.abs(Date.now() - new Date(row[6]).getTime()) > (1000 * 3600 * 25))
+                                Math.abs(Date.now() - new Date(row[6]).getTime()) > (1000 * 3600 * 25)))
                                 {
                                    let  proxyObj = {};
                                    proxyObj.ipAddress = row[0];
@@ -276,7 +277,7 @@ module.exports.get = async (minProxyRequest = 5)=>
                                    */
                                    data.push(proxyObj);
                                    let rowId = (i+1);
-                                   updateCell('Sheet1!G'+rowId+":G" + rowId,new Date().toString());
+                                   module.exports.updateCell('Sheet1!G'+rowId+":G" + rowId,new Date().toString());
                                    cnt++;
                                    if (cnt > minProxyRequest)
                                        break;
