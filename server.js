@@ -26,7 +26,7 @@ app.get( '/',async (req, res, next) => {
       // then we should know that we looking for proxies
       if (!limit || parseInt(limit) == 0)
           limit = 5;
-     let sheetResult = await sheets.get(limit);/*.then((proxies)=>{
+     let sheetResult = await sheets.get(limit-1);/*.then((proxies)=>{
       console.log("------------------------------------------");
       console.log("------------------------------------------");
       console.log(JSON.stringify(proxies));
