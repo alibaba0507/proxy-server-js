@@ -24,22 +24,21 @@ app.get( '/',async (req, res, next) => {
     if (req.query.p)
     { // this flag must exist anything with a p = (anything 1 ... 5. whatever)
       // then we should know that we looking for proxies
+      let sheetResult = {};
       if (!limit || parseInt(limit) == 0)
           limit = 5;
-     let sheetResult = await sheets.get(limit-1);/*.then((proxies)=>{
-      console.log("------------------------------------------");
-      console.log("------------------------------------------");
-      console.log(JSON.stringify(proxies));
-      res.send(JSON.stringify(proxies));   
-     },(err)=>{
-         console.log("-------------ERRRRRRROOOORRR-----------------------------");
-      console.log("------------------------------------------");
-      console.log(err);
-      res.send(JSON.stringify(err));   
-     });*/
-      //console.log("------------------------------------------");
-     // console.log("------------------------------------------");
-     // console.log(JSON.stringify(sheetResult));
+     if (req.query.r) // range
+     {
+         sheetResult = await sheets.getRange(parseInt(req.query.r),
+                                    parseInt(limit-1));
+     }else
+     {
+        if (req.query.row) // this is where timestamp for this request is stored
+        { // to not return the same proxy for the next 24 hours default is 6(G)
+          sheetResult = await sheets.get(limit-1,parseInt(req.query.row));
+        }else 
+            sheetResult = await sheets.get(limit-1);
+     }
      res.send(JSON.stringify(sheetResult)); 
       next();
     }else if (req.query.err)

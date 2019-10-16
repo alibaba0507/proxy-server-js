@@ -234,8 +234,67 @@ module.exports.findRow = async (range,searchFor) =>
 }
 // will get first 5 proxies that date is 0 or 
 // date diff is bigger then 24 hours
-module.exports.get = async (minProxyRequest = 5)=>
+
+module.exports.getRange = (startFrom = 1, lnegth = 5) =>{
+     return new  Promise(function(resolve, reject) {
+        fs.readFile('credentials.json', (err, content) => {
+          if (err) 
+          {
+            reject(err);
+            //return console.log('Error loading client secret file:', err);
+          }
+          // Authorize a client with credentials, then call the Google Sheets API.
+          authorize(JSON.parse(content), (auth)=>{
+              //resolve(auth);
+             let sheets = google.sheets({version: 'v4', auth});
+              sheets.spreadsheets.values.get({
+                 spreadsheetId: sheetId,
+                 range: 'Sheet1!A' + startFrom + ':H' + (startFrom+length),
+                }, (err, res) => {
+                    if (err) 
+                    {
+                        console.error(err);
+                        reject(err);
+                    }
+                    const rows = res.data.values;
+                    data = [];
+                    var cnt = 0;
+                    for (let i =0;i<rows.length;i++) {
+                      let row = rows[i];
+                       let  proxyObj = {};
+                       proxyObj.ipAddress = row[0];
+                       proxyObj.port = row[1];
+                       proxyObj.protocols = row[2];
+                       /*proxyObj.anonymityLevel = row[2];
+                       proxyObj.protocols = row[3];
+                       proxyObj.country = row[4];
+                       proxyObj.source = row[5];
+                       */
+                       data.push(proxyObj);
+                       //let rowId = (i+1);
+                       //module.exports.updateCell('Sheet1!G'+rowId+":G" + rowId,new Date().toString());
+                       //cnt++;
+                       //if (cnt > minProxyRequest)
+                        //   break;
+                               
+                    } // end for(let i =0;i<rows.length;i++)
+                    console.log(" >>>> module.exports.get()[" + (data.length) + "]>>>>");
+                    sheets = null;
+                    resolve(data);
+                });
+              
+              
+              
+              
+          });
+        });
+    });
+    
+}
+
+module.exports.get = async (minProxyRequest = 5,rowIndx=6)=>
 {
+    rowLetters = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U'];
     return new  Promise(function(resolve, reject) {
         fs.readFile('credentials.json', (err, content) => {
           if (err) 
@@ -249,7 +308,7 @@ module.exports.get = async (minProxyRequest = 5)=>
              let sheets = google.sheets({version: 'v4', auth});
               sheets.spreadsheets.values.get({
                  spreadsheetId: sheetId,
-                 range: 'Sheet1!A1:H',
+                 range: 'Sheet1!A1:'+rowLetters[rowIndx],
                 }, (err, res) => {
                     if (err) 
                     {
@@ -261,10 +320,9 @@ module.exports.get = async (minProxyRequest = 5)=>
                     var cnt = 0;
                     for (let i =0;i<rows.length;i++) {
                       let row = rows[i];
-                      if ((typeof row[7] === 'undefined' || row[7] !== '1')
-                           && (typeof row[6] === 'undefined'
-                            || row[6] == "" ||
-                                Math.abs(Date.now() - new Date(row[6]).getTime()) > (1000 * 3600 * 25)))
+                      if ((typeof row[rowIndx] === 'undefined'
+                            || row[rowIndx] == "" ||
+                                Math.abs(Date.now() - new Date(row[rowIndx]).getTime()) > (1000 * 3600 * 25)))
                                 {
                                    let  proxyObj = {};
                                    proxyObj.ipAddress = row[0];
@@ -277,7 +335,7 @@ module.exports.get = async (minProxyRequest = 5)=>
                                    */
                                    data.push(proxyObj);
                                    let rowId = (i+1);
-                                   module.exports.updateCell('Sheet1!G'+rowId+":G" + rowId,new Date().toString());
+                                   module.exports.updateCell('Sheet1!' + rowLetters[rowIndx]+rowId+':' +rowLetters[rowIndx] + rowId,new Date().toString());
                                    cnt++;
                                    if (cnt > minProxyRequest)
                                        break;
