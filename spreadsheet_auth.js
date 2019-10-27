@@ -292,7 +292,7 @@ module.exports.getRange = (startFrom = 1, lnegth = 5) =>{
     
 }
 
-module.exports.get = async (minProxyRequest = 5,rowIndx=6)=>
+module.exports.get = async (minProxyRequest = 5,rowIndx=6,sheet = 'Sheet1')=>
 {
     rowLetters = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U'];
     return new  Promise(function(resolve, reject) {
@@ -303,12 +303,14 @@ module.exports.get = async (minProxyRequest = 5,rowIndx=6)=>
             //return console.log('Error loading client secret file:', err);
           }
           // Authorize a client with credentials, then call the Google Sheets API.
+          if (rowIndx == 0 || rowIndx == '0')
+            rowIndx = 6;
           authorize(JSON.parse(content), (auth)=>{
               //resolve(auth);
              let sheets = google.sheets({version: 'v4', auth});
               sheets.spreadsheets.values.get({
                  spreadsheetId: sheetId,
-                 range: 'Sheet1!A1:'+rowLetters[rowIndx],
+                 range: sheet + '!A1:'+rowLetters[rowIndx],
                 }, (err, res) => {
                     if (err) 
                     {
@@ -335,7 +337,7 @@ module.exports.get = async (minProxyRequest = 5,rowIndx=6)=>
                                    */
                                    data.push(proxyObj);
                                    let rowId = (i+1);
-                                   module.exports.updateCell('Sheet1!' + rowLetters[rowIndx]+rowId+':' +rowLetters[rowIndx] + rowId,new Date().toString());
+                                   module.exports.updateCell(sheet+'!' + rowLetters[rowIndx]+rowId+':' +rowLetters[rowIndx] + rowId,new Date().toString());
                                    cnt++;
                                    if (cnt > minProxyRequest)
                                        break;

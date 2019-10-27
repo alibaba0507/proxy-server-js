@@ -33,11 +33,20 @@ app.get( '/',async (req, res, next) => {
                                     parseInt(limit-1));
      }else
      {
+      
         if (req.query.row) // this is where timestamp for this request is stored
         { // to not return the same proxy for the next 24 hours default is 6(G)
-          sheetResult = await sheets.get(limit-1,parseInt(req.query.row));
-        }else 
-            sheetResult = await sheets.get(limit-1);
+          if (req.query.sh)
+              sheetResult = await sheets.get(limit-1,parseInt(req.query.row),req.query.sh);
+          else
+            sheetResult = await sheets.get(limit-1,parseInt(req.query.row));
+        }else
+        {    
+            if (req.query.sh)
+              sheetResult = await sheets.get(limit-1,0,req.query.sh);
+            else
+                sheetResult = await sheets.get(limit-1);
+        }
      }
      res.send(JSON.stringify(sheetResult)); 
       next();
